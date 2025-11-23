@@ -41,7 +41,9 @@
 #include "mempool.h"
 
 #include "esp_hosted_coprocessor_fw_ver.h"
+#ifdef CONFIG_ESP_HOSTED_CLI_ENABLED
 #include "esp_hosted_cli.h"
+#endif
 #include "host_power_save.h"
 
 #if CONFIG_ESP_HOSTED_NETWORK_SPLIT_ENABLED
@@ -655,20 +657,53 @@ static void process_rx_pkt(interface_buffer_handle_t *buf_handle)
 
 
 	if (buf_handle->if_type == ESP_STA_IF && station_connected) {
-		/* Forward data to wlan driver - 无重试，避免阻塞 */
+		/* Check if this is an aggregated packet: count field >1 and ≤24 */
+		if (payload_len >= 3 && payload[0] > 1 && payload[0] <= 24) {
+			/* Aggregated packet format: [count(1B)][len(2B)][pkt][len(2B)][pkt]... */
+			uint8_t count = payload[0];
+			uint16_t offset = 1;
+			int sent = 0;
+			
+			for (uint8_t i = 0; i < count && offset + 2 <= payload_len; i++) {
+				/* Parse packet length (big-endian) */
+				uint16_t pkt_len = (payload[offset] << 8) | payload[offset + 1];
+				offset += 2;
+				
+				/* Bounds check */
+				if (pkt_len == 0 || offset + pkt_len > payload_len) {
+					break;
+				}
+				
+				/* Send individual packet to WiFi */
+				if (esp_wifi_internal_tx(WIFI_IF_STA, &payload[offset], pkt_len) == ESP_OK) {
+					sent++;
+				}
+				
+				offset += pkt_len;
+			}
+			
 #if ESP_PKT_STATS
-		int ret = esp_wifi_internal_tx(WIFI_IF_STA, payload, payload_len);
+			pkt_stats.hs_bus_sta_out += sent;
+			if (sent < count) {
+				pkt_stats.hs_bus_sta_fail++;
+			}
+#endif
+		} else {
+			/* Single packet - forward to WiFi driver (no retry to avoid blocking) */
+#if ESP_PKT_STATS
+			int ret = esp_wifi_internal_tx(WIFI_IF_STA, payload, payload_len);
 #else
-		esp_wifi_internal_tx(WIFI_IF_STA, payload, payload_len);
+			esp_wifi_internal_tx(WIFI_IF_STA, payload, payload_len);
 #endif
-		
-		ESP_HEXLOGV("STA_Put", payload, payload_len, 32);
+			
+			ESP_HEXLOGV("STA_Put", payload, payload_len, 32);
 #if ESP_PKT_STATS
-		if (ret)
-			pkt_stats.hs_bus_sta_fail++;
-		else
-			pkt_stats.hs_bus_sta_out++;
+			if (ret)
+				pkt_stats.hs_bus_sta_fail++;
+			else
+				pkt_stats.hs_bus_sta_out++;
 #endif
+		}
 	} else if (buf_handle->if_type == ESP_AP_IF && softap_started) {
 		/* Forward data to wlan driver */
 		esp_wifi_internal_tx(WIFI_IF_AP, payload, payload_len);
@@ -716,7 +751,7 @@ static void recv_task(void* pvParameters)
 		if (if_context && if_context->if_ops && if_context->if_ops->read) {
 			int len = if_context->if_ops->read(if_handle, &buf_handle);
 			if (len <= 0) {
-				taskYIELD();  // 只触发任务调度，不强制休眠1ms
+				vTaskDelay(pdMS_TO_TICKS(1));
 				continue;
 			}
 		}
