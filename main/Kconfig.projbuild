@@ -774,13 +774,15 @@ menu "Example Configuration"
 
 		config ESP_HOSTED_BT_UART_PORT_ESP32
 			int "HCI UART Port"
-			range BTDM_CTRL_HCI_UART_NO BTDM_CTRL_HCI_UART_NO
+			range 0 2
+			default 1
 			help
-				UART Port for HCI
+				UART Port for HCI (0-2)
 
 		config ESP_HOSTED_BT_UART_BAUDRATE_ESP32
 			int "HCI UART Baudrate"
-			range BTDM_CTRL_HCI_UART_BAUDRATE BTDM_CTRL_HCI_UART_BAUDRATE
+			range 9600 3000000
+			default 921600
 			help
 				UART Baudrate for HCI. Please use standard baudrate.
 
@@ -856,11 +858,9 @@ menu "Example Configuration"
 		help
 			Enable/disable sleeps while OTA operations
 
-	config ESP_WIFI_DPP_SUPPORT
-		bool "Enable Wi-Fi Easy Connect (DPP)"
-		default n
-		help
-			Enable Wi-Fi Easy Connect (DPP) support
+	# Note: ESP_WIFI_DPP_SUPPORT is defined in ESP-IDF's esp_wifi component
+	# To enable DPP, configure it via: Component config -> Wi-Fi -> Enable DPP support
+	# Duplicate definition removed to avoid Kconfig conflicts
 
 	menu "Hosted Debugging"
 		config ESP_RAW_THROUGHPUT_TRANSPORT
@@ -1195,20 +1195,9 @@ menu "Example Configuration"
 
 		endchoice
 
-		choice WIFI_CMD_DEFAULT_COUNTRY
-			prompt "Set default country during initialize wifi"
-			default WIFI_CMD_DEFAULT_COUNTRY_CN
-			help
-				Set default wifi country during initialize wifi
-
-		config WIFI_CMD_DEFAULT_COUNTRY_NONE
-			bool
-			prompt "Do not set country code"
-
-		config WIFI_CMD_DEFAULT_COUNTRY_CN
-			bool
-			prompt "Set country code to CN (1-13)"
-		endchoice
+		# Note: WIFI_CMD_DEFAULT_COUNTRY_* symbols are defined in managed_components/esp-qa__wifi-cmd
+		# To configure WiFi country code, use: Component config -> WiFi Cmd
+		# Duplicate definition removed to avoid Kconfig conflicts
 	endmenu
 
 	config ESP_HOSTED_EXTRA_EXAMPLES

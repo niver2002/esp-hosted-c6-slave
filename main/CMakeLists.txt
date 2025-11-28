@@ -7,7 +7,6 @@ endif()
 set(COMPONENT_SRCS
 	"slave_control.c"
 	"${common_dir}/proto/esp_hosted_rpc.pb-c.c"
-	"${common_dir}/utils/esp_hosted_cli.c"
 	"protocomm_pserial.c"
 	"esp_hosted_coprocessor.c"
 	"slave_bt.c"
@@ -54,10 +53,11 @@ if(CONFIG_ESP_HOSTED_COPROCESSOR_EXAMPLE_HTTP_CLIENT)
     list(APPEND COMPONENT_SRCS http_req.c)
 endif()
 
-# cli
-list(APPEND COMPONENT_ADD_INCLUDEDIRS "${common_dir}/utils")
-list(APPEND COMPONENT_SRCS "${common_dir}/utils/esp_hosted_cli.c")
-
+# CLI support (conditionally included if enabled)
+if(CONFIG_ESP_HOSTED_CLI_ENABLED)
+    list(APPEND COMPONENT_ADD_INCLUDEDIRS "${common_dir}/utils")
+    list(APPEND COMPONENT_SRCS "sdio_slave_api.c" "${common_dir}/utils/esp_hosted_cli.c")
+endif()
 
 register_component()
 

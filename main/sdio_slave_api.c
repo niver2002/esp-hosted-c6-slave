@@ -30,7 +30,7 @@
 #define SDIO_NUM_RX_BUFFERS              CONFIG_ESP_SDIO_RX_Q_SIZE
 static uint8_t sdio_slave_rx_buffer[SDIO_NUM_RX_BUFFERS][SDIO_RX_BUFFER_SIZE];
 
-/* TODO: Need to cross check once in priority queue properly handled */
+/* Mempool大小优化：匹配TX queue大小+余量（30+10=40） */
 #define SDIO_MEMPOOL_NUM_BLOCKS         40
 static struct hosted_mempool * buf_mp_tx_g;
 
@@ -495,6 +495,7 @@ static inline struct esp_payload_header * update_tx_header(uint8_t* sendbuf,
 
 static inline esp_err_t copy_tx_payload(uint8_t *sendbuf, uint8_t* payload, uint16_t len)
 {
+	/* 编译器优化（-O3）会自动优化memcpy */
 	memcpy(sendbuf + sizeof(struct esp_payload_header), payload, len);
 	return ESP_OK;
 }
