@@ -60,7 +60,7 @@ static const char *TAG = "co-pro-main";
 
 #define UNKNOWN_RPC_MSG_ID               0
 
-#define TO_HOST_QUEUE_SIZE               20  // 增加到20，提高WiFi→Host下载吞吐量
+#define TO_HOST_QUEUE_SIZE               32  // 增加到32，提高WiFi→Host下载吞吐量
 
 #define ETH_DATA_LEN                     1500
 #define MAX_WIFI_STA_TX_RETRY            0  // 禁用重试，避免vTaskDelay阻塞

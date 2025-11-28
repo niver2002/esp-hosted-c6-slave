@@ -13,3 +13,16 @@ CONFIG_BOOTLOADER_COMPILER_OPTIMIZATION_PERF=y
 
 #Disable enterprise support by default
 CONFIG_ESP_WIFI_ENTERPRISE_SUPPORT=n
+
+# ============================================================
+# SDIO Performance Configuration
+# ============================================================
+CONFIG_ESP_SDIO_TX_Q_SIZE=40
+CONFIG_ESP_SDIO_RX_Q_SIZE=40
+
+# ============================================================
+# WiFi Buffer Configuration (increased for throughput)
+# ============================================================
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=24
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=64
+CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=64
