@@ -143,8 +143,5 @@ Key configuration in `sdkconfig.defaults.esp32c6`:
 
 ## References
 
-- [ESP-Hosted MCU Documentation](../../README.md)
-- [ESP32-P4-Function-EV-Board Setup](../../docs/esp32_p4_function_ev_board.md)
-- [Transport Layer Documentation](../../docs/)
-- [Troubleshooting Guide](../../docs/troubleshooting.md)
-- [Configuration Consistency](../../CONFIGURATION_CONSISTENCY.md) - P4 vs C6 configuration comparison
+- [ESP-Hosted MCU](https://github.com/espressif/esp-hosted-mcu)
+- [ESP-IDF](https://github.com/espressif/esp-idf)
