@@ -30,8 +30,8 @@
 #define SDIO_NUM_RX_BUFFERS              CONFIG_ESP_SDIO_RX_Q_SIZE
 static uint8_t sdio_slave_rx_buffer[SDIO_NUM_RX_BUFFERS][SDIO_RX_BUFFER_SIZE];
 
-/* Mempool大小优化：匹配TX queue大小+余量（40+10=50） */
-#define SDIO_MEMPOOL_NUM_BLOCKS         50
+/* Mempool大小优化：匹配TX queue大小+余量（40+20=60） */
+#define SDIO_MEMPOOL_NUM_BLOCKS         60
 static struct hosted_mempool * buf_mp_tx_g;
 
 interface_context_t context;

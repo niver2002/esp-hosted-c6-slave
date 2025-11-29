@@ -130,14 +130,16 @@ idf.py -p <SERIAL_PORT> flash monitor
 This firmware has been optimized for ESP-IDF v6.1 and includes:
 
 - **ESP-IDF v6.1 compatibility** - Updated configurations for latest best practices
-- **Performance optimizations** - WiFi buffer tuning, SDIO queue optimization
-- **Power management** - Sleep mode workarounds for better power efficiency
+- **Performance optimizations** - WiFi RX buffer: 20 static + 64 dynamic, SDIO queue: 40/40
+- **Power management** - Disabled for lowest latency
 - **Hardware acceleration** - Enabled AES and SHA hardware acceleration
 - **Memory optimization** - Newlib nano formatting for reduced RAM/Flash usage
 
-For detailed information, see:
-- [ESP_IDF_V6.1_UPDATE.md](ESP_IDF_V6.1_UPDATE.md) - ESP-IDF v6.1 configuration updates
-- [OPTIMIZATION_CHANGES.md](OPTIMIZATION_CHANGES.md) - WiFi performance optimizations
+Key configuration in `sdkconfig.defaults.esp32c6`:
+- `CONFIG_ESP_SDIO_TX_Q_SIZE=40` - Match P4 host SDIO queue
+- `CONFIG_ESP_SDIO_RX_Q_SIZE=40` - Match P4 host SDIO queue
+- `CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=64` - Download throughput
+- `CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=20` - Static RX buffers
 
 ## References
 
